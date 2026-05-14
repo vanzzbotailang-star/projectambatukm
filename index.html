@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dark Night - Prompt Vault (Owner & Member)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #0f0f1a 100%);
+            font-family: 'Courier New', 'Fira Code', monospace;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Role Selector */
+        .role-selector {
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid #333;
+            border-radius: 60px;
+            padding: 8px;
+            margin-bottom: 25px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .role-btn {
+            background: transparent;
+            border: none;
+            color: #888;
+            padding: 10px 30px;
+            font-family: monospace;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 40px;
+            transition: all 0.3s;
+        }
+
+        .role-btn.active {
+            background: #b76eff;
+            color: #000;
+            box-shadow: 0 0 15px #b76eff;
+        }
+
+        .role-btn:hover:not(.active) {
+            background: #2a2a4a;
+            color: #b76eff;
+        }
+
+        /* Owner Login Overlay */
+        .owner-login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(8px);
+        }
+
+        .login-box {
+            background: #0a0a0a;
+            border: 2px solid #b76eff;
+            border-radius: 24px;
+            padding: 40px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-box h2 {
+            color: #b76eff;
+            margin-bottom: 10px;
+        }
+
+        .login-box p {
+            color: #888;
+            margin-bottom: 25px;
+            font-size: 12px;
+        }
+
+        .login-input {
+            width: 100%;
+            background: #0a0a0a;
+            border: 1px solid #b76eff;
+            color: #b76eff;
+            padding: 12px;
+            font-family: monospace;
+            font-size: 16px;
+            text-align: center;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .login-btn {
+            background: linear-gradient(90deg, #1a1a2e, #0a0a0a);
+            border: 1px solid #b76eff;
+            color: #b76eff;
+            padding: 10px 25px;
+            font-family: monospace;
+            cursor: pointer;
+            border-radius: 30px;
+            width: 100%;
+        }
+
+        .login-btn:hover {
+            background: #b76eff;
+            color: #000;
+        }
+
+        .error-msg {
+            color: #ff3366;
+            margin-top: 12px;
+            font-size: 12px;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(0, 0, 0, 0.7);
+            border-bottom: 2px solid #b76eff;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 10px 10px 0 0;
+            text-align: center;
+        }
+
+        .title {
+            font-size: 28px;
+            color: #b76eff;
+            text-shadow: 0 0 10px #b76eff;
+        }
+
+        .sub {
+            color: #888;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        /* Panel */
+        .panel {
+            background: rgba(0, 0, 0, 0.85);
+            border: 1px solid #2a2a4a;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 25px;
+        }
+
+        .panel-header {
+            background: linear-gradient(90deg, #0a0a0a, #1a1a2e);
+            padding: 15px 20px;
+            border-bottom: 1px solid #b76eff;
+            color: #b76eff;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .panel-body {
+            padding: 20px;
+        }
+
+        /* Form Owner */
+        .owner-only-form {
+            display: none;
+        }
+
+        .owner-only-form.show {
+            display: block;
+        }
+
+        textarea, input {
+            width: 100%;
+            background: #0a0a0a;
+            border: 1px solid #333;
+            color: #0f0;
+            padding: 12px;
+            font-family: monospace;
+            font-size: 14px;
+            border-radius: 8px;
+            resize: vertical;
+        }
+
+        textarea:focus, input:focus {
+            outline: none;
+            border-color: #b76eff;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #b76eff;
+            font-size: 12px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: linear-gradient(90deg, #1a1a2e, #0a0a0a);
+            border: 1px solid #b76eff;
+            color: #b76eff;
+            padding: 8px 18px;
+            font-family: monospace;
+            font-size: 13px;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-danger {
+            border-color: #ff3366;
+            color: #ff6699;
+        }
+
+        .btn-danger:hover {
+            background: #ff3366;
+            color: #000;
+        }
+
+        .btn:hover {
+            background: #b76eff;
+            color: #000;
+            transform: scale(1.02);
+        }
+
+        /* Prompt List */
+        .prompt-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .prompt-item {
+            background: #0a0a0a;
+            border: 1px solid #222;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+            position: relative;
+        }
+
+        .prompt-title {
+            color: #b76eff;
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 8px;
+            word-break: break-word;
+            padding-right: 80px;
+        }
+
+        .prompt-preview {
+            color: #888;
+            font-size: 11px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .prompt-date {
+            color: #555;
+            font-size: 10px;
+            margin-top: 8px;
+        }
+
+        .item-actions {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .item-btn {
+            background: transparent;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .item-btn.copy-btn:hover {
+            color: #00ff88;
+            background: rgba(0, 255, 136, 0.1);
+        }
+
+        .item-btn.delete-btn {
+            display: none;
+        }
+
+        .owner-mode .item-btn.delete-btn {
+            display: inline-block;
+        }
+
+        .item-btn.delete-btn:hover {
+            color: #ff3366;
+            background: rgba(255, 51, 102, 0.1);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #555;
+        }
+
+        .status-bar {
+            background: #000;
+            padding: 10px 20px;
+            margin-top: 20px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #0f0;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #00ff88;
+            color: #000;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-weight: bold;
+            z-index: 9999;
+            animation: fadeInOut 2s ease;
+        }
+
+        .toast.error {
+            background: #ff3366;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(20px); }
+            15% { opacity: 1; transform: translateY(0); }
+            85% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-20px); visibility: hidden; }
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 15px;
+            color: #444;
+            font-size: 11px;
+        }
+
+        .pin-badge {
+            background: #b76eff20;
+            border: 1px solid #b76eff;
+            border-radius: 20px;
+            padding: 2px 10px;
+            font-size: 10px;
+            margin-left: 10px;
+            color: #b76eff;
+        }
+
+        .pin-section {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #333;
+        }
+
+        .pin-input-group {
+            display: flex;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Role Selector -->
+    <div class="role-selector">
+        <button class="role-btn" id="memberBtn">👥 MEMBER</button>
+        <button class="role-btn" id="ownerBtn">👑 OWNER</button>
+    </div>
+
+    <div class="header">
+        <div class="title">🌑 DARK NIGHT · PROMPT VAULT</div>
+        <div class="sub" id="roleSub">| mode: MEMBER (lihat & copy saja) |</div>
+    </div>
+
+    <!-- Form Tambah Prompt (Hanya Owner) -->
+    <div class="panel owner-only-form" id="ownerForm">
+        <div class="panel-header">📝 TAMBAH PROMPT BARU (OWNER ONLY)</div>
+        <div class="panel-body">
+            <label>🏷️ JUDUL</label>
+            <input type="text" id="promptTitle" placeholder="Contoh: SouGPT Jailbreak, XSO Prompt, dll">
+            <label style="margin-top: 15px;">📄 ISI PROMPT</label>
+            <textarea id="promptContent" rows="6" placeholder="Masukkan teks prompt/jailbreak..."></textarea>
+            <div class="btn-group">
+                <button class="btn" id="saveBtn">💾 SIMPAN PROMPT</button>
+                <button class="btn" id="clearFormBtn">🗑 CLEAR FORM</button>
+            </div>
+            
+            <!-- PIN Section untuk Owner -->
+            <div class="pin-section">
+                <label>📌 PIN / PESAN KE MEMBER</label>
+                <div class="pin-input-group">
+                    <input type="text" id="pinInput" placeholder="p Halo member, ini pesan rahasia">
+                    <button class="btn" id="sendPinBtn">📌 KIRIM PIN</button>
+                </div>
+                <small style="color:#888;">Prompt dengan label PIN akan muncul di member</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Daftar Prompt -->
+    <div class="panel">
+        <div class="panel-header">📚 SEMUA PROMPT (Owner & Member)</div>
+        <div class="panel-body">
+            <div class="btn-group" style="margin-bottom: 15px;">
+                <button class="btn" id="refreshListBtn">🔄 REFRESH</button>
+                <button class="btn btn-danger" id="deleteAllBtn" style="display: none;">⚠️ HAPUS SEMUA (OWNER)</button>
+            </div>
+            <div id="promptListContainer" class="prompt-list">
+                <div class="empty-state">Belum ada prompt. Owner bisa tambah prompt.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <span id="roleStatus">🔓 Role: MEMBER</span>
+        <span id="storageCount">📦 0 prompt</span>
+        <span>⚡ Aturan Malam · Tanpa Sensor</span>
+    </div>
+    <footer>⚠ Member: lihat & copy saja | Owner: tambah, hapus, copy, kirim PIN | Data tersambung</footer>
+</div>
+
+<script>
+    // Konfigurasi
+    const OWNER_PASSWORD = "violet";
+    const STORAGE_KEY = "dark_night_prompts_shared";
+    
+    let currentRole = "member";
+    let ownerAuthenticated = false;
+    
+    // ========== STORAGE ==========
+    function loadPrompts() {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (!stored) return [];
+        try {
+            return JSON.parse(stored);
+        } catch(e) {
+            return [];
+        }
+    }
+    
+    function savePrompts(prompts) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(prompts));
+        updateStats();
+        renderPromptList();
+    }
+    
+    function updateStats() {
+        const prompts = loadPrompts();
+        const countSpan = document.getElementById("storageCount");
+        if (countSpan) countSpan.innerText = `📦 ${prompts.length} prompt`;
+    }
+    
+    // ========== UI ==========
+    function showToast(msg, isError = false) {
+        const existing = document.querySelector('.toast');
+        if (existing) existing.remove();
+        const toast = document.createElement('div');
+        toast.className = 'toast' + (isError ? ' error' : '');
+        toast.innerText = msg;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2000);
+    }
+    
+    async function copyToClipboard(text, title) {
+        try {
+            await navigator.clipboard.writeText(text);
+            showToast(`✅ "${title}" disalin ke clipboard!`);
+        } catch(e) {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            showToast(`✅ "${title}" disalin!`);
+        }
+    }
+    
+    function renderPromptList() {
+        const prompts = loadPrompts();
+        const container = document.getElementById("promptListContainer");
+        
+        if (!container) return;
+        if (prompts.length === 0) {
+            container.innerHTML = `<div class="empty-state">📭 Belum ada prompt. ${currentRole === 'owner' ? 'Owner bisa tambah prompt' : 'Tunggu owner menambahkan prompt'}</div>`;
+            return;
+        }
+        
+        let html = "";
+        prompts.forEach((prompt, index) => {
+            let preview = prompt.content.substring(0, 80);
+            if (prompt.content.length > 80) preview += "...";
+            const safeTitle = escapeHtml(prompt.title || "Tanpa Judul");
+            const safePreview = escapeHtml(preview);
+            const dateStr = prompt.date ? new Date(prompt.date).toLocaleString('id-ID') : "Tidak diketahui";
+            const isPinned = prompt.pinned ? '<span class="pin-badge">📌 PIN FROM OWNER</span>' : '';
+            
+            html += `
+                <div class="prompt-item" data-index="${index}">
+                    <div class="item-actions">
+                        <button class="item-btn copy-btn" data-index="${index}" title="Salin prompt">📋 COPY</button>
+                        ${currentRole === 'owner' && ownerAuthenticated ? `<button class="item-btn delete-btn" data-index="${index}" title="Hapus prompt">🗑️ HAPUS</button>` : ''}
+                    </div>
+                    <div class="prompt-title">${safeTitle} ${isPinned}</div>
+                    <div class="prompt-preview">${safePreview}</div>
+                    <div class="prompt-date">📅 ${dateStr}</div>
+                </div>
+            `;
+        });
+        
+        container.innerHTML = html;
+        
+        // Event copy
+        document.querySelectorAll('.copy-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const idx = parseInt(btn.getAttribute('data-index'));
+                const promptsData = loadPrompts();
+                if (promptsData[idx]) {
+                    copyToClipboard(promptsData[idx].content, promptsData[idx].title || "Prompt");
+                }
+            });
+        });
+        
+        // Event delete (hanya owner)
+        if (currentRole === 'owner' && ownerAuthenticated) {
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const idx = parseInt(btn.getAttribute('data-index'));
+                    deletePromptByIndex(idx);
+                });
+            });
+        }
+    }
+    
+    function deletePromptByIndex(index) {
+        const prompts = loadPrompts();
+        if (index >= 0 && index < prompts.length) {
+            const title = prompts[index].title || "Prompt";
+            if (confirm(`Hapus prompt "${title}"?`)) {
+                prompts.splice(index, 1);
+                savePrompts(prompts);
+                showToast(`🗑️ "${title}" dihapus`);
+            }
+        }
+    }
+    
+    function deleteAllPrompts() {
+        const prompts = loadPrompts();
+        if (prompts.length === 0) {
+            showToast("Tidak ada prompt", true);
+            return;
+        }
+        if (confirm(`⚠️ Hapus SEMUA ${prompts.length} prompt?`)) {
+            savePrompts([]);
+            showToast(`🗑️ Semua prompt dihapus`);
+        }
+    }
+    
+    function saveNewPrompt() {
+        const title = document.getElementById('promptTitle').value.trim();
+        const content = document.getElementById('promptContent').value.trim();
+        
+        if (!content) {
+            showToast("❌ Isi prompt tidak boleh kosong!", true);
+            return;
+        }
+        
+        const prompts = loadPrompts();
+        const newPrompt = {
+            id: Date.now(),
+            title: title || "Prompt tanpa judul",
+            content: content,
+            date: new Date().toISOString(),
+            pinned: false
+        };
+        
+        prompts.unshift(newPrompt);
+        savePrompts(prompts);
+        
+        document.getElementById('promptTitle').value = "";
+        document.getElementById('promptContent').value = "";
+        showToast(`✅ Prompt "${newPrompt.title}" disimpan!`);
+    }
+    
+    function clearForm() {
+        document.getElementById('promptTitle').value = "";
+        document.getElementById('promptContent').value = "";
+        showToast("🧹 Form dibersihkan");
+    }
+    
+    // Fungsi PIN: Owner kirim pesan ke member
+    function sendPinMessage(message) {
+        const prompts = loadPrompts();
+        // Hapus PIN lama jika ada
+        const filteredPrompts = prompts.filter(p => !p.pinned);
+        const newPin = {
+            id: Date.now(),
+            title: "📌 PIN DARI OWNER",
+            content: message,
+            date: new Date().toISOString(),
+            pinned: true
+        };
+        filteredPrompts.unshift(newPin);
+        savePrompts(filteredPrompts);
+        showToast(`📌 PIN terkirim: "${message.substring(0, 50)}..."`);
+        document.getElementById('pinInput').value = "";
+    }
+    
+    function escapeHtml(str) {
+        if (!str) return "";
+        return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    }
+    
+    // ========== OWNER LOGIN ==========
+    function showOwnerLogin() {
+        const overlay = document.createElement('div');
+        overlay.className = 'owner-login-overlay';
+        overlay.id = 'ownerLoginOverlay';
+        overlay.innerHTML = `
+            <div class="login-box">
+                <h2>👑 OWNER VERIFICATION</h2>
+                <p>Halo Owner, masukkan kata sandi untuk mengakses fitur owner</p>
+                <input type="password" class="login-input" id="ownerPasswordInput" placeholder="Sandi" autocomplete="off">
+                <button class="login-btn" id="submitOwnerLogin">🔓 LOGIN</button>
+                <div id="loginErrorMsg" class="error-msg"></div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        
+        const submitBtn = document.getElementById('submitOwnerLogin');
+        const passInput = document.getElementById('ownerPasswordInput');
+        
+        const doLogin = () => {
+            const entered = passInput.value.trim();
+            const errorDiv = document.getElementById('loginErrorMsg');
+            if (entered === OWNER_PASSWORD) {
+                ownerAuthenticated = true;
+                setRole('owner');
+                overlay.remove();
+                showToast("✅ Owner authenticated! Fitur lengkap aktif.");
+            } else {
+                errorDiv.innerText = "❌ Sandi salah! Akses ditolak.";
+                passInput.value = "";
+                setTimeout(() => errorDiv.innerText = "", 2000);
+            }
+        };
+        
+        submitBtn.addEventListener('click', doLogin);
+        passInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') doLogin(); });
+    }
+    
+    // ========== SET ROLE ==========
+    function setRole(role) {
+        currentRole = role;
+        const isOwner = (role === 'owner' && ownerAuthenticated);
+        
+        // Update UI Role Selector
+        document.getElementById('memberBtn').classList.toggle('active', role === 'member');
+        document.getElementById('ownerBtn').classList.toggle('active', isOwner);
+        
+        // Update sub & status
+        const subEl = document.getElementById('roleSub');
+        const statusEl = document.getElementById('roleStatus');
+        if (isOwner) {
+            subEl.innerHTML = '| mode: OWNER (tambah, hapus, copy, PIN) |';
+            statusEl.innerHTML = '👑 Role: OWNER (full akses)';
+            document.getElementById('ownerForm').classList.add('show');
+            document.getElementById('deleteAllBtn').style.display = 'inline-block';
+        } else {
+            subEl.innerHTML = '| mode: MEMBER (lihat & copy saja) |';
+            statusEl.innerHTML = '🔓 Role: MEMBER (baca & copy saja)';
+            document.getElementById('ownerForm').classList.remove('show');
+            document.getElementById('deleteAllBtn').style.display = 'none';
+        }
+        
+        renderPromptList();
+    }
+    
+    // ========== EVENT LISTENER ==========
+    document.addEventListener('DOMContentLoaded', () => {
+        // Role buttons
+        document.getElementById('memberBtn').addEventListener('click', () => {
+            setRole('member');
+        });
+        
+        document.getElementById('ownerBtn').addEventListener('click', () => {
+            if (ownerAuthenticated) {
+                setRole('owner');
+            } else {
+                showOwnerLogin();
+            }
+        });
+        
+        // Form actions
+        document.getElementById('saveBtn').addEventListener('click', saveNewPrompt);
+        document.getElementById('clearFormBtn').addEventListener('click', clearForm);
+        document.getElementById('refreshListBtn').addEventListener('click', () => renderPromptList());
+        document.getElementById('deleteAllBtn').addEventListener('click', deleteAllPrompts);
+        
+        // PIN send
+        document.getElementById('sendPinBtn').addEventListener('click', () => {
+            if (!ownerAuthenticated || currentRole !== 'owner') {
+                showToast("❌ Hanya owner yang bisa mengirim PIN", true);
+                return;
+            }
+            let pinText = document.getElementById('pinInput').value.trim();
+            if (!pinText) {
+                showToast("❌ Masukkan pesan PIN", true);
+                return;
+            }
+            // Hapus "p " diawal jika ada
+            if (pinText.toLowerCase().startsWith('p ')) {
+                pinText = pinText.substring(2);
+            }
+            sendPinMessage(pinText);
+        });
+        
+        // Load data awal
+        updateStats();
+        renderPromptList();
+        setRole('member');
+        
+        // Demo prompt awal biar ga kosong
+        const existing = loadPrompts();
+        if (existing.length === 0) {
+            const demoPrompt = {
+                id: Date.now(),
+                title: "Contoh Prompt",
+                content: "Ini adalah contoh prompt. Owner bisa tambah prompt sendiri atau kirim PIN ke member.",
+                date: new Date().toISOString(),
+                pinned: false
+            };
+            savePrompts([demoPrompt]);
+        }
+    });
+</script>
+</body>
+</html>
